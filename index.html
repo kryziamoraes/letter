@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta Romântica ❤️</title>
+
+<style>
+
+body{
+margin:0;
+height:100vh;
+overflow:hidden;
+font-family:Georgia,serif;
+display:flex;
+justify-content:center;
+align-items:center;
+background:url("foto_fundo.jpg") center/cover no-repeat;
+}
+
+.overlay{
+position:absolute;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.35);
+pointer-events:none;
+}
+
+/* envelope */
+
+.envelope-container{
+position:relative;
+width:220px;
+height:140px;
+z-index:5;
+}
+
+.envelope{
+position:absolute;
+width:100%;
+height:100%;
+background:#ffc2d1;
+transition:transform .3s;
+}
+
+.envelope:hover{
+transform:scale(1.08);
+}
+
+.flap{
+position:absolute;
+width:0;
+height:0;
+border-left:110px solid transparent;
+border-right:110px solid transparent;
+border-top:80px solid #ff8fab;
+top:0;
+left:0;
+transform-origin:top;
+transition:transform .8s;
+z-index:5;
+}
+
+/* carta pequena dentro */
+
+.inner-letter{
+position:absolute;
+width:90%;
+height:110px;
+background:#fff;
+left:5%;
+top:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+transition:transform 1s ease;
+z-index:-1;
+}
+
+/* carta grande */
+
+.letter{
+position:absolute;
+width:85%;
+max-width:600px;
+background:#fffaf3;
+padding:30px;
+border-radius:8px;
+border:1px solid rgba(0,0,0,0.08);
+box-shadow:
+0 25px 60px rgba(0,0,0,0.35),
+0 5px 15px rgba(0,0,0,0.15);
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(.3);
+opacity:0;
+transition:all 1s ease;
+z-index:10;
+text-align:center;
+pointer-events:none;
+
+background-image:linear-gradient(
+rgba(0,0,0,0.02) 1px,
+transparent 1px
+);
+background-size:100% 28px;
+}
+
+.letter.show{
+opacity:1;
+transform:translate(-50%,-50%) scale(1) rotate(-1deg);
+}
+
+/* texto */
+
+#text{
+font-family:Georgia, serif;
+font-style:italic;
+font-size:clamp(20px,3vw,26px);
+line-height:1.7;
+white-space:pre-line;
+margin-bottom:20px;
+}
+
+/* foto da carta */
+
+.photo{
+width:60%;
+max-width:250px;
+display:block;
+margin:20px auto;
+border-radius:10px;
+opacity:0;
+transform:scale(.9);
+transition:all 1s ease;
+}
+
+.photo.show{
+opacity:1;
+transform:scale(1);
+}
+
+/* assinatura */
+
+.signature{
+margin-top:20px;
+font-size:20px;
+font-style:italic;
+opacity:0;
+transition:opacity 1s ease;
+}
+
+.signature.show{
+opacity:1;
+}
+
+/* corações */
+
+.heart{
+position:absolute;
+font-size:20px;
+animation:fall linear infinite;
+}
+
+@keyframes fall{
+
+0%{
+transform:translateY(-10vh);
+opacity:1;
+}
+
+100%{
+transform:translateY(110vh);
+opacity:0.6;
+}
+
+}
+
+/* explosão */
+
+.explosion{
+position:absolute;
+font-size:28px;
+animation:explode 1.2s forwards;
+}
+
+.seal{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#ff4d6d;
+color:white;
+width:40px;
+height:40px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+cursor:pointer;
+animation:pulse 2s infinite;
+z-index:10;
+}
+
+@keyframes explode{
+
+0%{
+transform:scale(0);
+opacity:1;
+}
+
+100%{
+transform:translate(var(--x),var(--y)) scale(2);
+opacity:0;
+}
+
+}
+
+@keyframes pulse{
+
+0%{transform:translate(-50%,-50%) scale(1);}
+50%{transform:translate(-50%,-50%) scale(1.1);}
+100%{transform:translate(-50%,-50%) scale(1);}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="envelope-container" id="container">
+
+<div class="inner-letter" id="innerLetter"></div>
+
+<div class="envelope" id="envelope">
+<div class="flap" id="flap"></div>
+<div class="seal" id="seal">❤</div></div>
+
+</div>
+
+<div class="letter" id="letter">
+
+<div id="text"></div>
+
+<img src="foto_carta.jpg" class="photo" id="photo">
+
+<div class="signature" id="signature">
+Con amor,<br>
+Tu Kryzia ❤️
+</div>
+
+</div>
+
+<audio id="audio" src="audio.mp3"></audio>
+
+<script>
+
+/* corações caindo */
+
+function createHeart(){
+
+const heart=document.createElement("div")
+heart.classList.add("heart")
+heart.innerHTML="❤️"
+
+heart.style.left=Math.random()*100+"vw"
+heart.style.animationDuration=(5+Math.random()*5)+"s"
+
+document.body.appendChild(heart)
+
+setTimeout(()=>heart.remove(),10000)
+
+}
+
+function startHeartRain(){
+setInterval(createHeart,300)
+}
+
+/* explosão */
+
+function heartExplosion(){
+
+for(let i=0;i<30;i++){
+
+const heart=document.createElement("div")
+heart.className="explosion"
+heart.innerHTML="❤️"
+
+heart.style.left="50%"
+heart.style.top="50%"
+
+const x=(Math.random()*500-250)+"px"
+const y=(Math.random()*500-250)+"px"
+
+heart.style.setProperty("--x",x)
+heart.style.setProperty("--y",y)
+
+document.body.appendChild(heart)
+
+setTimeout(()=>heart.remove(),1200)
+
+}
+
+}
+
+/* elementos */
+
+const seal=document.getElementById("seal")
+const flap=document.getElementById("flap")
+const innerLetter=document.getElementById("innerLetter")
+const letter=document.getElementById("letter")
+const audio=document.getElementById("audio")
+
+/* clique */
+
+seal.onclick=()=>{
+
+seal.style.opacity="0"
+
+flap.style.transform="rotateX(-180deg)"
+
+setTimeout(()=>{
+innerLetter.style.transform="translateY(-160px)"
+},400)
+
+setTimeout(()=>{
+
+document.getElementById("container").style.display="none"
+
+letter.classList.add("show")
+
+heartExplosion()
+
+startHeartRain()
+
+audio.play()
+
+typeText()
+
+},1200)
+
+}
+
+/* mensagem */
+
+const message=`Querida Candela,
+
+Tienes un culito muy hermoso. 
+Podría dormir noche tras noche sobre el. 
+Déjame decirte, quiero vivir contigo 
+y tener tu culo de sombrero toda la eternidad.
+
+Eu te amo ❤️`
+
+let i=0
+
+function typeText(){
+
+if(i<message.length){
+
+document.getElementById("text").innerHTML+=message.charAt(i)
+
+i++
+
+setTimeout(typeText,40)
+
+}else{
+
+/* mostrar foto e assinatura */
+
+document.getElementById("photo").classList.add("show")
+
+setTimeout(()=>{
+document.getElementById("signature").classList.add("show")
+},800)
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
